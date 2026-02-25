@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Offline Emergency Info</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { font-family: Arial; background:#111; color:white; padding:20px; }
+h1, h2 { color: crimson; }
+textarea, input, button { width:100%; padding:10px; margin:6px 0; border-radius:6px; border:none; font-size:16px; }
+button { background: crimson; color:white; cursor:pointer; }
+textarea { resize: vertical; }
+.hidden { display:none; }
+.box { border: 2px solid crimson; padding:10px; border-radius:8px; margin-bottom:10px; }
+.call-btn { background: darkgreen; color:white; margin-top:6px; }
+</style>
+</head>
+
+<body>
+
+<h1>🔹 Offline Emergency Info</h1>
+
+<!-- Read-only display -->
+<div class="box">
+  <pre id="readonly">Your emergency info will appear here after saving.</pre>
+</div>
+
+<!-- Quick actions -->
+<h2>Emergency Quick Actions</h2>
+<div class="box" id="quickActions">
+  <button class="call-btn" onclick="call('09123456789')">Call Emergency Contact 1</button>
+  <button class="call-btn" onclick="call('09987654321')">Call Emergency Contact 2</button>
+</div>
+
+<!-- Edit section -->
+<h2>Edit Emergency Info</h2>
+<div class="box">
+  <input type="password" id="editPass" placeholder="Enter password to edit">
+  <button onclick="unlockEdit()">Unlock Edit</button>
+  
+  <div id="editBox" class="hidden">
+    <textarea id="info" rows="8" placeholder="Type emergency info here..."></textarea>
+    <button onclick="save()">💾 Save Info</button>
+    
+    <!-- Change password section -->
+    <h3>Change Edit Password</h3>
+    <input type="password" id="newPass" placeholder="Enter new password">
+    <button onclick="changePassword()">Change Password</button>
+  </div>
+</div>
+
+<script>
+// DEFAULT EDIT PASSWORD
+let defaultPass = "1234";
+
+// Load saved password and info
+let savedPass = localStorage.getItem("editPass") || defaultPass;
+let savedInfo = localStorage.getItem("info");
+if(savedInfo){
+  document.getElementById("info").value = savedInfo;
+  document.getElementById("readonly").textContent = savedInfo;
+}
+
+// Unlock edit mode
+function unlockEdit(){
+  let p = document.getElementById("editPass").value;
+  if(p === savedPass){
+    document.getElementById("editBox").classList.remove("hidden");
+    document.getElementById("editPass").value = "";
+    alert("Edit mode unlocked ✅");
+  } else {
+    alert("Wrong password");
+  }
+}
+
+// Save info locally
+function save(){
+  let infoText = document.getElementById("info").value;
+  localStorage.setItem("info", infoText);
+  document.getElementById("readonly").textContent = infoText;
+  alert("Saved locally ✅");
+}
+
+// Quick call buttons (offline simulation)
+function call(number){
+  alert("Pretend calling " + number + " 📞 (offline demo)");
+}
+
+// Change edit password
+function changePassword(){
+  let newP = document.getElementById("newPass").value;
+  if(newP.length < 1){
+    alert("Enter a valid password");
+    return;
+  }
+  localStorage.setItem("editPass", newP);
+  savedPass = newP;
+  document.getElementById("newPass").value = "";
+  alert("Password changed ✅");
+}
+</script>
+
+</body>
+</html>
