@@ -1,102 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Offline Emergency Info</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Emergency Info</title>
 <style>
-body { font-family: Arial; background:#111; color:white; padding:20px; }
-h1, h2 { color: crimson; }
-textarea, input, button { width:100%; padding:10px; margin:6px 0; border-radius:6px; border:none; font-size:16px; }
-button { background: crimson; color:white; cursor:pointer; }
-textarea { resize: vertical; }
-.hidden { display:none; }
-.box { border: 2px solid crimson; padding:10px; border-radius:8px; margin-bottom:10px; }
-.call-btn { background: darkgreen; color:white; margin-top:6px; }
+body{
+font-family:Arial;
+background:#0f0f16;
+color:#eee;
+padding:15px;
+}
+.header{
+background:#b71c1c;
+padding:15px;
+border-radius:10px;
+text-align:center;
+}
+.header h1{margin:0;color:white;}
+.section{
+background:#1a1a2a;
+border-left:6px solid #6cf;
+border-radius:8px;
+padding:12px;
+margin-top:12px;
+}
+.section h2{
+margin-top:0;
+color:#6cf;
+font-size:18px;
+}
+pre{white-space:pre-wrap;font-size:15px;}
+button,input,textarea{
+width:100%;
+padding:10px;
+margin-top:6px;
+border-radius:6px;
+border:none;
+font-size:15px;
+}
+textarea,input{background:#0b0b15;color:white;}
+button{
+background:#6cf;
+color:black;
+font-weight:bold;
+}
+.hidden{display:none;}
 </style>
 </head>
 
 <body>
 
-<h1>🔹 Offline Emergency Info</h1>
-
-<!-- Read-only display -->
-<div class="box">
-  <pre id="readonly">Your emergency info will appear here after saving.</pre>
+<div class="header">
+<h1>🆘 EMERGENCY INFORMATION</h1>
+<p>Scan QR to view offline</p>
 </div>
 
-<!-- Quick actions -->
-<h2>Emergency Quick Actions</h2>
-<div class="box" id="quickActions">
-  <button class="call-btn" onclick="call('09123456789')">Call Emergency Contact 1</button>
-  <button class="call-btn" onclick="call('09987654321')">Call Emergency Contact 2</button>
+<div class="section">
+<h2>👤 Personal Info</h2>
+<pre id="display">
+Name:
+Age:
+Address:
+</pre>
 </div>
 
-<!-- Edit section -->
-<h2>Edit Emergency Info</h2>
-<div class="box">
-  <input type="password" id="editPass" placeholder="Enter password to edit">
-  <button onclick="unlockEdit()">Unlock Edit</button>
-  
-  <div id="editBox" class="hidden">
-    <textarea id="info" rows="8" placeholder="Type emergency info here..."></textarea>
-    <button onclick="save()">💾 Save Info</button>
-    
-    <!-- Change password section -->
-    <h3>Change Edit Password</h3>
-    <input type="password" id="newPass" placeholder="Enter new password">
-    <button onclick="changePassword()">Change Password</button>
-  </div>
+<div class="section">
+<h2>🩸 Medical</h2>
+<pre id="display2">
+Blood Type:
+</pre>
+</div>
+
+<div class="section">
+<h2>📞 Emergency Contact</h2>
+<pre id="display3">
+Parent/Guardian:
+Emergency Number:
+</pre>
+</div>
+
+<div class="section">
+<h2>✏ Edit Info</h2>
+<input type="password" id="editPass" placeholder="Password to edit">
+<button onclick="unlock()">Unlock</button>
+
+<div id="editBox" class="hidden">
+<textarea id="info" rows="10">
+Name:
+Age:
+Address:
+Blood Type:
+Parent/Guardian:
+Emergency Number:
+</textarea>
+
+<button onclick="save()">Save</button>
+
+<h3>Change Password</h3>
+<input type="password" id="newPass" placeholder="New password">
+<button onclick="changePass()">Change Password</button>
+</div>
 </div>
 
 <script>
-// DEFAULT EDIT PASSWORD
-let defaultPass = "1234";
+let defaultPass="1234";
+let savedPass=localStorage.getItem("pass")||defaultPass;
+let savedInfo=localStorage.getItem("info");
 
-// Load saved password and info
-let savedPass = localStorage.getItem("editPass") || defaultPass;
-let savedInfo = localStorage.getItem("info");
+function render(text){
+let lines=text.split("\n");
+document.getElementById("display").textContent=lines.slice(0,3).join("\n");
+document.getElementById("display2").textContent=lines.slice(3,4).join("\n");
+document.getElementById("display3").textContent=lines.slice(4).join("\n");
+}
+
 if(savedInfo){
-  document.getElementById("info").value = savedInfo;
-  document.getElementById("readonly").textContent = savedInfo;
+document.getElementById("info").value=savedInfo;
+render(savedInfo);
 }
 
-// Unlock edit mode
-function unlockEdit(){
-  let p = document.getElementById("editPass").value;
-  if(p === savedPass){
-    document.getElementById("editBox").classList.remove("hidden");
-    document.getElementById("editPass").value = "";
-    alert("Edit mode unlocked ✅");
-  } else {
-    alert("Wrong password");
-  }
+function unlock(){
+if(document.getElementById("editPass").value===savedPass){
+document.getElementById("editBox").classList.remove("hidden");
+alert("Edit unlocked");
+}else{alert("Wrong password");}
 }
 
-// Save info locally
 function save(){
-  let infoText = document.getElementById("info").value;
-  localStorage.setItem("info", infoText);
-  document.getElementById("readonly").textContent = infoText;
-  alert("Saved locally ✅");
+let t=document.getElementById("info").value;
+localStorage.setItem("info",t);
+render(t);
+alert("Saved");
 }
 
-// Quick call buttons (offline simulation)
-function call(number){
-  alert("Pretend calling " + number + " 📞 (offline demo)");
-}
-
-// Change edit password
-function changePassword(){
-  let newP = document.getElementById("newPass").value;
-  if(newP.length < 1){
-    alert("Enter a valid password");
-    return;
-  }
-  localStorage.setItem("editPass", newP);
-  savedPass = newP;
-  document.getElementById("newPass").value = "";
-  alert("Password changed ✅");
+function changePass(){
+let np=document.getElementById("newPass").value;
+if(np.length<1){alert("Invalid");return;}
+localStorage.setItem("pass",np);
+savedPass=np;
+alert("Password changed");
 }
 </script>
 
